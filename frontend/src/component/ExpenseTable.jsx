@@ -1,77 +1,70 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 
-function ExpenseTable() {
+function ExpenseForm() {
+  const [title, setTitle] = useState("");
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState("");
+  const [message, setMessage] = useState("");
 
-    const [expenses, setExpenses] = useState([]);
-
-    const fetchExpenses = async () => {
-
-        try {
-
-            const response = await axios.get("http://localhost:8080/expenses");
-
-            console.log(response.data);
-
-            // If using Generic API Response
-            setExpenses(response.data);
-
-        } catch (error) {
-
-            console.log(error);
-
-        }
-
+  const handleSubmit = async () => {
+    const expense = {
+      title: title,
+      amount: amount,
+      category: category,
     };
 
-    useEffect(() => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
-        fetchExpenses();
+      const response = await axios.post(`${API_URL}/expenses`, expense);
+      console.log(response.data);
+      setTitle("");
+      setAmount("");
+      setCategory("");
+      setMessage("Expense Added Successfully!");
 
-    }, []);
+        setTimeout(() => {
 
-    return (
+            setMessage("");
 
-        <div>
+        },3000);
 
-            <h2>Expense List</h2>
+    } catch (error) {
+        setMessage("Something went wrong!");
+    }
+  };
 
-            <table border="1">
-
-                <thead>
-
-                    <tr>
-
-                        <th>Title</th>
-                        <th>Amount</th>
-                        <th>Category</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    {expenses.map((expense) => (
-
-                        <tr key={expense.id}>
-
-                            <td>{expense.title}</td>
-                            <td>{expense.amount}</td>
-                            <td>{expense.category}</td>
-
-                        </tr>
-
-                    ))}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    );
-
+  return (
+    <div>
+      <h2>Add Expense</h2>
+      <input
+        type="text"
+        placeholder="Enter Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <p>You entered: {title}</p>
+      <br />
+      <input
+        type="number"
+        placeholder="Enter Amount"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+      />
+      <p>You entered Amount: {amount}</p>
+      <br />
+      <input
+        type="text"
+        placeholder="Enter Category"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+      />
+      <p>You entered Category: {category}</p>
+      <button onClick={handleSubmit}>Add Expense</button>
+      <p>{message}</p>
+    </div>
+  );
 }
 
-export default ExpenseTable;
+export default ExpenseForm;

@@ -1,71 +1,69 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
-function ExpenseForm() {
-  const [title, setTitle] = useState("");
-  const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState("");
-  const [message, setMessage] = useState("");
+function ExpenseTable() {
 
-  const handleSubmit = async () => {
-    const expense = {
-      title: title,
-      amount: amount,
-      category: category,
-    };
+    const [expenses, setExpenses] = useState([]);
 
+    const fetchExpenses = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:8080/expenses",
-        expense,
-      );
-      console.log(response.data);
-      setTitle("");
-      setAmount("");
-      setCategory("");
-      setMessage("Expense Added Successfully!");
-
-        setTimeout(() => {
-
-            setMessage("");
-
-        },3000);
-
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+        const response = await axios.get(`${API_URL}/expenses`);
+        console.log(response.data);
+        setExpenses(response.data);
     } catch (error) {
-        setMessage("Something went wrong!");
+        console.log(error);
     }
-  };
+};
 
-  return (
-    <div>
-      <h2>Add Expense</h2>
-      <input
-        type="text"
-        placeholder="Enter Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <p>You entered: {title}</p>
-      <br />
-      <input
-        type="number"
-        placeholder="Enter Amount"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-      />
-      <p>You entered Amount: {amount}</p>
-      <br />
-      <input
-        type="text"
-        placeholder="Enter Category"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-      />
-      <p>You entered Category: {category}</p>
-      <button onClick={handleSubmit}>Add Expense</button>
-      <p>{message}</p>
-    </div>
-  );
+    useEffect(() => {
+
+        fetchExpenses();
+
+    }, []);
+
+    return (
+
+        <div>
+
+            <h2>Expense List</h2>
+
+            <table border="1">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Title</th>
+                        <th>Amount</th>
+                        <th>Category</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {expenses.map((expense) => (
+
+                        <tr key={expense.id}>
+
+                            <td>{expense.title}</td>
+                            <td>{expense.amount}</td>
+                            <td>{expense.category}</td>
+
+                        </tr>
+
+                    ))}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    );
+
 }
 
-export default ExpenseForm;
+export default ExpenseTable;
